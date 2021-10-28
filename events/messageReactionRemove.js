@@ -1,4 +1,5 @@
-const { guildId, welcomeChannel } = require("../channels.json");
+const { welcomeChannel } = require("../channels.json");
+const { guildId } = require("../config.json")
 
 module.exports = {
     name: 'messageReactionRemove',
