@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js");
-const { guildId, welcomeChannel } = require("../channels.json");
+const { welcomeChannel } = require("../channels.json");
 
 
 module.exports = {
@@ -109,6 +109,7 @@ If the initial violation is severe enough, such as posting blatant NSFW or attem
 <#890339324107845632> - Add your friend code and Timezone here!
 <#890379488226066483> - Different links and guides for D2R. Class-specific builds do not go here. Please put those in the class specific channels (described below)
 <#895858420928892958> - Show off that sweet loot! Keep discussion to the postings only please!
+<#900382224313118781> - Ask the community what an item is worth!
 <#896813603963945034> - All other off-topic chats go here
 
 **CHARACTER TYPE CHANNELS (SOFTCORE/HARDCORE)**
@@ -116,8 +117,9 @@ There are two categories for Softcore and Hardcore. Both ladder and non-ladder d
 
 **general** - Discuss anything related to D2R
 **trading** - Create trade posts using the bot command **/trade**. Follow the prompts and create a trade posting.
-**looking-for-group** - Create LFG posts using the bot command **/lfg**. Follow the prompts and create an lfg posting. Posting in this channel, you must have DMs enabled.
-**rush-me-plz** - Ask for rushes using the bot command **/rush**. Follow the prompts and create a rush posting. Posting in this channel, you must have DMs enabled.
+**looking-for-group** - Create LFG posts using the bot command **/lfg**. Follow the prompts and create an lfg posting.
+**rush-me-plz** - Ask for rushes here!
+**giveaways** - Giveaways for different items will be posted here!
 
 **CLASSES**
 These are the channels dedicated to the 7 classes of the game. Discuss anything class related here. Guides and videos are fine here. Please still use <#891014799117393922> or <#895814291595350016> for all trading needs.
