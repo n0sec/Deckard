@@ -11,7 +11,7 @@ module.exports = {
             const mentionedUserId = interaction.options.getMentionable('user').id;
             const foundUser = await memberSchema.findOne({ id: mentionedUserId }).lean();
             if (foundUser) {
-                await interaction.reply(`<@${mentionedUserId}>'s Switch Code is **${foundUser.switch_code}**, their Profile Name is **${foundUser.switch_name}** and their Timezone is **${foundUser.timezone}**.`)
+                await interaction.reply(`<@${mentionedUserId}>'s Switch Code is **${foundUser.switch_code}**, their Profile Name is **${foundUser.switch_name}** and their Timezone is **${foundUser.timezone ?? "N/A"}**.`)
             } else {
                 await interaction.reply(`<@${mentionedUserId}> is not in the database yet. Use **/addcode** to add your Switch Code.`)
             }
