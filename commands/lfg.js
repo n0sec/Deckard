@@ -64,7 +64,7 @@ module.exports = {
             // Split the items by comma
             const membersArray = members?.trim().split(','); // Array
 
-            if (members.length === 3) {
+            if (membersArray.length === 3) {
                 interaction.reply({ content: 'There\'s no need to make a listing if you already have a full party. Pick an open game channel.', ephemeral: true })
             }
 
