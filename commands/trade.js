@@ -23,14 +23,6 @@ module.exports = {
                 .addStringOption(option => option.setName('ladder').setDescription('Ladder or Non-Ladder').setRequired(true).addChoice('Ladder', 'Ladder').addChoice('Non-Ladder', 'Non-Ladder'))
         ),
     async execute(interaction) {
-        const row = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId('deleteButton')
-                    .setLabel('Delete')
-                    .setStyle('DANGER')
-            );
-
         if (interaction.channel.id !== tradeChannel && interaction.channel.id !== hcTradeChannel) {
             interaction.reply({ content: `This command must be used in <#${tradeChannel}> or <#${hcTradeChannel}>. Deleting in 5 seconds.`, fetchReply: true })
                 .then(msg => {
@@ -68,7 +60,6 @@ module.exports = {
 
                 await interaction.reply({
                     embeds: [tradeEmbed],
-                    components: [row],
                     fetchReply: true
                 })
                 /* TRADE LF */
