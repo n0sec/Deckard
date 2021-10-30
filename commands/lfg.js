@@ -68,6 +68,10 @@ module.exports = {
                 await interaction.reply({ content: 'There\'s no need to make a listing if you already have a full party. Pick an open game channel.', ephemeral: true })
             }
 
+            if (level > 99) {
+                await interaction.reply({ content: 'Level must be 99 or less.', ephemeral: true });
+            }
+
             const hostArray = [interaction.member.id];
             const partyMembersArray = membersArray ? hostArray.concat(membersArray) : hostArray; // Array1
             const partyMembersLength = partyMembersArray.length;
