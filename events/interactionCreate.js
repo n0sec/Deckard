@@ -50,7 +50,7 @@ module.exports = {
                     let partyMembersValue = receivedEmbed.fields[4];
                     partyMembersValue.value += `\n<@${userWhoClickedButton}> - **${partyMember?.switch_code ? partyMember.switch_code : "N/A"}**`;
 
-                    const editedEmbed = new MessageEmbed(receivedEmbed)
+                    const editedEmbed = new MessageEmbed(receivedEmbed);
 
                     await interaction.message.edit({ embeds: [editedEmbed] });
                     await interaction.reply({ content: 'You have successfully joined the party!', ephemeral: true });
@@ -106,7 +106,7 @@ module.exports = {
                 const receivedEmbed = interaction.message.embeds[0];
 
                 // Create a new Embed Object with the received one as a template/starting point
-                const editedEmbed = new MessageEmbed(receivedEmbed)
+                const editedEmbed = new MessageEmbed(receivedEmbed);
 
                 // Disable the End button
                 await interaction.message.components[0].components[2].setDisabled();
@@ -131,9 +131,7 @@ module.exports = {
                 const receivedEmbed = interaction.message.embeds[0];
                 let partyMembersValue = receivedEmbed.fields[4];
 
-                const regex = new RegExp(`<@${userWhoClickedButton}>.*`);
-
-                const editedEmbed = new MessageEmbed(receivedEmbed)
+                const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}> - \\*{0,2}(?:SW-....-....-....|"N\/A")\\*{0,2}`);
 
                 if (interaction.message.hasThread) {
                     try {
@@ -141,7 +139,13 @@ module.exports = {
                         await interaction.message.thread.members.remove(userWhoClickedButton);
 
                         // Remove user from Embed
-                        partyMembersValue.value = partyMembersValue.value.replace(regex, '')
+                        partyMembersValue.value = partyMembersValue.value.replace(regex, '');
+
+                        if (partyMembersValue.value === '') {
+                            await interaction.reply({ content: 'You cannot leave if you are the last member. Please delete the message instead using the Delete button.', ephemeral: true });
+                        }
+
+                        const editedEmbed = new MessageEmbed(receivedEmbed);
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
@@ -160,7 +164,13 @@ module.exports = {
                 } else {
                     try {
                         // Remove user from Embed
-                        partyMembersValue.value = partyMembersValue.value.replace(regex, '')
+                        partyMembersValue.value = partyMembersValue.value.replace(regex, '');
+
+                        if (partyMembersValue.value === '') {
+                            await interaction.reply({ content: 'You cannot leave if you are the last member. If you initiated the command, please delete the message instead using the Delete button.', ephemeral: true });
+                        }
+
+                        const editedEmbed = new MessageEmbed(receivedEmbed);
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
