@@ -141,7 +141,7 @@ module.exports = {
                         await interaction.message.thread.members.remove(userWhoClickedButton);
 
                         // Remove user from Embed
-                        partyMembersValue.value += partyMembersValue.replace(regex, '')
+                        partyMembersValue.value = partyMembersValue.value.replace(regex, '')
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
@@ -160,7 +160,7 @@ module.exports = {
                 } else {
                     try {
                         // Remove user from Embed
-                        partyMembersValue.value += partyMembersValue.replace(regex, '')
+                        partyMembersValue.value = partyMembersValue.value.replace(regex, '')
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
