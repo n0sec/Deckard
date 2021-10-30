@@ -93,6 +93,10 @@ module.exports = {
                         .setLabel('Join')
                         .setStyle('SUCCESS'),
                     new MessageButton()
+                        .setCustomId('leaveButton')
+                        .setLabel('Leave')
+                        .setStyle('SECONDARY'),
+                    new MessageButton()
                         .setCustomId('endButton')
                         .setLabel('End')
                         .setStyle('PRIMARY'),
