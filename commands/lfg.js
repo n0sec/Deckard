@@ -72,11 +72,17 @@ module.exports = {
                 await interaction.reply({ content: 'Level must be 99 or less.', ephemeral: true });
             }
 
+            // Just the host in an array
             const hostArray = [interaction.member.id];
+
+            // If membersArray is some truthy value then add it to the hostArray (appends to end)
+            // Else only the host was specified/members was not specified as an option
             const partyMembersArray = membersArray ? hostArray.concat(membersArray) : hostArray; // Array1
+
+            // Get the length of partyMembersArray
             const partyMembersLength = partyMembersArray.length;
 
-            const membersDbInfo = await memberSchema.find({ id: partyMembersArray }).lean(); // Array2
+            const membersDbInfo = await memberSchema.find({ id: partyMembersArray }); // Array2
 
             for (partyMember of partyMembersArray) {
                 if (!membersDbInfo.some(member => member.id === partyMember)) {
