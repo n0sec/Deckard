@@ -129,7 +129,7 @@ module.exports = {
 
             } else if (interaction.customId === 'leaveButton' && await lfgSchema.findOne({ message_id: messageInteractedWith }).where({ $in: { partyMembers: userWhoClickedButton } })) {
                 const receivedEmbed = interaction.message.embeds[0];
-                let partyMembersValue = receivedEmbed.fields[4].value;
+                let partyMembersValue = receivedEmbed.fields[4];
 
                 const regex = new RegExp(`<@${userWhoClickedButton}>.*`);
 
@@ -141,7 +141,7 @@ module.exports = {
                         await interaction.message.thread.members.remove(userWhoClickedButton);
 
                         // Remove user from Embed
-                        partyMembersValue += partyMembersValue.replace(regex, '')
+                        partyMembersValue.value += partyMembersValue.replace(regex, '')
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
@@ -160,7 +160,7 @@ module.exports = {
                 } else {
                     try {
                         // Remove user from Embed
-                        partyMembersValue = partyMembersValue.replace(regex, '')
+                        partyMembersValue.value += partyMembersValue.replace(regex, '')
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
