@@ -73,7 +73,7 @@ module.exports = {
 
                         // Set the JOIN and EDIT button to disabled
                         await interaction.message.components[0].components[0].setDisabled();
-                        await interaction.message.components[0].components[1].setDisabled();
+                        await interaction.message.components[0].components[2].setDisabled();
 
                         // Edit the Embed and send the new components
                         await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
@@ -108,8 +108,8 @@ module.exports = {
                 // Create a new Embed Object with the received one as a template/starting point
                 const editedEmbed = new MessageEmbed(receivedEmbed)
 
-                // Disable the Edit button
-                await interaction.message.components[0].components[1].setDisabled();
+                // Disable the End button
+                await interaction.message.components[0].components[2].setDisabled();
 
                 // Resend the new, edited Embed
                 await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
@@ -127,6 +127,56 @@ module.exports = {
                 // Send a reply so it doesn't need to be deferred
                 await interaction.reply({ content: 'You have ended the LFG early. Members can still join and will be added to the thread that has been created for you.', ephemeral: true });
 
+            } else if (interaction.customId === 'leaveButton' && await lfgSchema.findOne({ message_id: messageInteractedWith }).where({ $in: { partyMembers: userWhoClickedButton } })) {
+                const receivedEmbed = interaction.message.embeds[0];
+                let partyMembersValue = receivedEmbed.fields[4].value;
+
+                const regex = new RegExp(`<@${userWhoClickedButton}>.*`);
+
+                const editedEmbed = new MessageEmbed(receivedEmbed)
+
+                if (interaction.message.hasThread) {
+                    try {
+                        // Remove user from thread
+                        await interaction.message.thread.members.remove(userWhoClickedButton);
+
+                        // Remove user from Embed
+                        partyMembersValue += partyMembersValue.replace(regex, '')
+
+                        // Remove user from database and decrement partyCount
+                        await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
+
+                        await interaction.message.edit({ embeds: [editedEmbed] });
+
+                        // If the JOIN button is disabled, re-enable it for further joining
+                        if (interaction.message.components[0].components[0].disabled) {
+                            await interaction.message.components[0].components[0].setDisabled(false);
+                        }
+
+                        await interaction.reply({ content: 'You have successfully left the party!', ephemeral: true });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                } else {
+                    try {
+                        // Remove user from Embed
+                        partyMembersValue = partyMembersValue.replace(regex, '')
+
+                        // Remove user from database and decrement partyCount
+                        await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
+
+                        await interaction.message.edit({ embeds: [editedEmbed] });
+
+                        // If the JOIN button is disabled, re-enable it for further joining
+                        if (interaction.message.components[0].components[0].disabled) {
+                            await interaction.message.components[0].components[0].setDisabled(false);
+                        }
+
+                        await interaction.reply({ content: 'You have successfully left the party!', ephemeral: true });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
             } else {
                 // If the user does something they aren't supposed to, send a generic reply
                 interaction.reply({ content: 'You are not allowed to do that.', ephemeral: true })
