@@ -80,7 +80,6 @@ module.exports = {
 
                 await interaction.reply({
                     embeds: [lfEmbed],
-                    components: [row],
                     fetchReply: true
                 })
             }
