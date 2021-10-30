@@ -35,7 +35,7 @@ module.exports = {
             "channel_id": hcLfgChannel
         }
         // Find any document from the sc-lfg channel or hc-lfg channel
-        const lfgDbDocument = await lfgSchema.findOne().or([querySc, queryHc]).lean();
+        const lfgDbDocument = await lfgSchema.findOne().or([querySc, queryHc]);
         // If lfgDbDocument isn't null or undefined
         // Someone has posted before and we should handle it below
         if (lfgDbDocument !== null && lfgDbDocument !== undefined) {
