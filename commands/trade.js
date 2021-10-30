@@ -66,12 +66,15 @@ module.exports = {
             } else if (interaction.options.getSubcommand() === "lf") {
                 const items = interaction.options.getString('items');
 
+                const itemsSplit = items.trim().split(',');
+                const itemsWanted = itemsSplit.join('\n');
+
                 const lfEmbed = new MessageEmbed()
                     .setColor('#00ebd3')
                     .setTitle('Trading - LF')
                     .setAuthor('❤️ Deckard')
                     .setDescription(`<@${interaction.member.id}> is looking for some items!`)
-                    .addField('Looking For', `${items}`, true)
+                    .addField('Looking For', `${itemsWanted}`, true)
                     .addField('Ladder/Non-Ladder', `${ladder}`, true)
                     .setTimestamp()
 
