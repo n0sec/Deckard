@@ -131,7 +131,9 @@ module.exports = {
                 const receivedEmbed = interaction.message.embeds[0];
                 let partyMembersValue = receivedEmbed.fields[4];
 
-                const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}> - \\*{0,2}(?:SW-....-....-....|"N\/A")\\*{0,2}`);
+                // const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}> - \\*{0,2}(?:SW-....-....-....|"N\/A")\\*{0,2}`);
+                const regex = new RegExp(`<@!?${userWhoClickedButton}>.*`);
+
 
                 if (interaction.message.hasThread) {
                     try {
@@ -142,7 +144,7 @@ module.exports = {
                         partyMembersValue.value = partyMembersValue.value.replace(regex, '');
 
                         if (partyMembersValue.value === '') {
-                            await interaction.reply({ content: 'You cannot leave if you are the last member. Please delete the message instead using the Delete button.', ephemeral: true });
+                            await interaction.reply({ content: 'You cannot leave if you are the last member. If you initiated the command, please delete the message instead using the Delete button.', ephemeral: true });
                         }
 
                         const editedEmbed = new MessageEmbed(receivedEmbed);
