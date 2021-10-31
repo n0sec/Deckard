@@ -132,7 +132,7 @@ module.exports = {
                 let partyMembersValue = receivedEmbed.fields[4];
 
                 // const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}> - \\*{0,2}(?:SW-....-....-....|"N\/A")\\*{0,2}`);
-                const regex = new RegExp(`<@!?${userWhoClickedButton}>.*`);
+                const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}>.*\\n?`);
 
 
                 if (interaction.message.hasThread) {
