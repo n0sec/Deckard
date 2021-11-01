@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('addcode')
         .setDescription('Adds your Switch friend code to the database!')
-        .addStringOption(option => option.setName('code').setDescription('Your Switch Friend Code. The "SW" is required!').setRequired(true))
+        .addStringOption(option => option.setName('code').setDescription('Your Switch Friend Code. SW-XXXX-XXXX-XXXX').setRequired(true))
         .addStringOption(option => option.setName('name').setDescription('Your Switch Profile Name').setRequired(true))
         .addStringOption(option => option.setName('timezone').setDescription('The timezone you are in/play most in').setRequired(false)),
     async execute(interaction) {
@@ -30,7 +30,7 @@ module.exports = {
             }
         } catch (err) {
             console.error(err);
-            interaction.reply({ content: `An error occurred when processing the command. Please check the command and try again.`, ephemeral: true });
+            interaction.reply({ content: `Oops! Something went wrong. The format is SW-XXXX-XXXX-XXXX. Check your format and try again.`, ephemeral: true });
         }
     }
 };
