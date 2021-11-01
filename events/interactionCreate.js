@@ -131,7 +131,6 @@ module.exports = {
                 const receivedEmbed = interaction.message.embeds[0];
                 let partyMembersValue = receivedEmbed.fields[4];
 
-                // const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}> - \\*{0,2}(?:SW-....-....-....|"N\/A")\\*{0,2}`);
                 const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}>.*\\n?`);
 
 
@@ -143,6 +142,11 @@ module.exports = {
                         // Remove user from Embed
                         partyMembersValue.value = partyMembersValue.value.replace(regex, '');
 
+                        // If the JOIN button is disabled, re-enable it for further joining
+                        if (interaction.message.components[0].components[0].disabled) {
+                            await interaction.message.components[0].components[0].setDisabled(false);
+                        }
+
                         if (partyMembersValue.value === '') {
                             await interaction.reply({ content: 'You cannot leave if you are the last member. If you initiated the command, please delete the message instead using the Delete button.', ephemeral: true });
                         }
@@ -153,11 +157,6 @@ module.exports = {
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
 
                         await interaction.message.edit({ embeds: [editedEmbed] });
-
-                        // If the JOIN button is disabled, re-enable it for further joining
-                        if (interaction.message.components[0].components[0].disabled) {
-                            await interaction.message.components[0].components[0].setDisabled(false);
-                        }
 
                         await interaction.reply({ content: 'You have successfully left the party!', ephemeral: true });
                     } catch (err) {
@@ -168,6 +167,11 @@ module.exports = {
                         // Remove user from Embed
                         partyMembersValue.value = partyMembersValue.value.replace(regex, '');
 
+                        // If the JOIN button is disabled, re-enable it for further joining
+                        if (interaction.message.components[0].components[0].disabled) {
+                            await interaction.message.components[0].components[0].setDisabled(false);
+                        }
+
                         if (partyMembersValue.value === '') {
                             await interaction.reply({ content: 'You cannot leave if you are the last member. If you initiated the command, please delete the message instead using the Delete button.', ephemeral: true });
                         }
@@ -178,11 +182,6 @@ module.exports = {
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
 
                         await interaction.message.edit({ embeds: [editedEmbed] });
-
-                        // If the JOIN button is disabled, re-enable it for further joining
-                        if (interaction.message.components[0].components[0].disabled) {
-                            await interaction.message.components[0].components[0].setDisabled(false);
-                        }
 
                         await interaction.reply({ content: 'You have successfully left the party!', ephemeral: true });
                     } catch (err) {
