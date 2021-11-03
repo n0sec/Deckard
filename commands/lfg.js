@@ -126,6 +126,7 @@ module.exports = {
                 .addField('Objective', `${objective}`, true)
                 .addField('Ladder', `${ladder}`, true)
                 .addField('Party Members', `${membersMapArray}`, true)
+                .setTimestamp()
 
             await interaction.reply({
                 embeds: [lfgEmbed],
