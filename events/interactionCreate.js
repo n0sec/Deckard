@@ -19,7 +19,8 @@ module.exports = {
             if (interaction.customId === 'deleteButton' && userWhoClickedButton === userWhoSentCommand) {
                 console.log('DELETE detected. Deleting message...');
                 try {
-                    if (interaction.message.hasThread) {
+                    // If the message has a thread already or a thread is already archived on the message
+                    if (interaction.message.hasThread || interaction.message.thread.archived) {
                         await interaction.message.thread.delete();
                     }
                     await interaction.message.delete()
@@ -127,7 +128,7 @@ module.exports = {
                 // Send a reply so it doesn't need to be deferred
                 await interaction.reply({ content: 'You have ended the LFG early. Members can still join and will be added to the thread that has been created for you.', ephemeral: true });
 
-            } else if (interaction.customId === 'leaveButton' && await lfgSchema.findOne({ message_id: messageInteractedWith }).where({ $in: { partyMembers: userWhoClickedButton } })) {
+            } else if (interaction.customId === 'leaveButton' && await lfgSchema.find({ message_id: messageInteractedWith }).where({ $in: { partyMembers: userWhoClickedButton } })) {
                 const receivedEmbed = interaction.message.embeds[0];
                 let partyMembersValue = receivedEmbed.fields[4];
 
@@ -156,7 +157,7 @@ module.exports = {
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
 
-                        await interaction.message.edit({ embeds: [editedEmbed] });
+                        await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
 
                         await interaction.reply({ content: 'You have successfully left the party!', ephemeral: true });
                     } catch (err) {
@@ -181,7 +182,7 @@ module.exports = {
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
 
-                        await interaction.message.edit({ embeds: [editedEmbed] });
+                        await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
 
                         await interaction.reply({ content: 'You have successfully left the party!', ephemeral: true });
                     } catch (err) {
