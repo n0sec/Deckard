@@ -118,7 +118,7 @@ module.exports = {
 
             const lfgEmbed = new MessageEmbed()
                 .setColor('#002fa6')
-                .setTitle(`LFG`)
+                .setTitle(`LFG - OPEN`)
                 .setAuthor('❤️ Deckard')
                 .setDescription(`<@${interaction.member.id}> is looking for a party! Click the green button to join!`)
                 .addField('Level', `${level}`, true)
