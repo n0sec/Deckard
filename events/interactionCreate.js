@@ -5,7 +5,6 @@ const { MessageEmbed } = require("discord.js");
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
-
         if (interaction.isButton()) {
             // Message ID that was reacted to
             // Use this to search the db
@@ -14,13 +13,13 @@ module.exports = {
             const userWhoSentCommand = interaction.message.interaction.user.id;
             const userWhoSentCommandUsername = interaction.message.interaction.user.username;
 
-
+            const lfgListing = await lfgSchema.findOne({ message_id: messageInteractedWith });
 
             if (interaction.customId === 'deleteButton' && userWhoClickedButton === userWhoSentCommand) {
                 console.log('DELETE detected. Deleting message...');
                 try {
                     // If the message has a thread already or a thread is already archived on the message
-                    if (interaction.message.hasThread || interaction.message.thread.archived) {
+                    if (interaction.message.hasThread) {
                         await interaction.message.thread.delete();
                     }
                     await interaction.message.delete()
@@ -32,14 +31,14 @@ module.exports = {
                 }
                 // Did the user click the JOIN Button and were they NOT the person who issued the command?
             } else if (interaction.customId === 'joinButton' && userWhoClickedButton !== userWhoSentCommand) {
-                const lfgDbDocument = await lfgSchema.findOne({ message_id: messageInteractedWith });
+                // const lfgDbDocument = await lfgSchema.findOne({ message_id: messageInteractedWith });
 
-                if (lfgDbDocument.partyCount === 4) {
+                if (lfgListing.partyCount === 4) {
                     interaction.reply({ content: 'This party is full! Please join another or make your own using **/lfg**.', ephemeral: true });
                     return;
                 }
 
-                if (lfgDbDocument.partyMembers.includes(userWhoClickedButton)) {
+                if (lfgListing.partyMembers.includes(userWhoClickedButton)) {
                     interaction.reply({ content: 'You have already joined this party.', ephemeral: true });
                     return;
                 }
@@ -128,12 +127,11 @@ module.exports = {
                 // Send a reply so it doesn't need to be deferred
                 await interaction.reply({ content: 'You have ended the LFG early. Members can still join and will be added to the thread that has been created for you.', ephemeral: true });
 
-            } else if (interaction.customId === 'leaveButton' && await lfgSchema.find({ message_id: messageInteractedWith }).where({ $in: { partyMembers: userWhoClickedButton } })) {
+            } else if (interaction.customId === 'leaveButton' && lfgListing.partyMembers.includes(userWhoClickedButton)) {
                 const receivedEmbed = interaction.message.embeds[0];
                 let partyMembersValue = receivedEmbed.fields[4];
 
                 const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}>.*\\n?`);
-
 
                 if (interaction.message.hasThread) {
                     try {
@@ -153,6 +151,10 @@ module.exports = {
                         }
 
                         const editedEmbed = new MessageEmbed(receivedEmbed);
+
+                        if (lfgListing.partyCount < 4) {
+                            editedEmbed.setTitle('LFG - OPEN');
+                        }
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
