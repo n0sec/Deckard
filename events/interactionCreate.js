@@ -33,12 +33,12 @@ module.exports = {
             } else if (interaction.customId === 'joinButton' && userWhoClickedButton !== userWhoSentCommand) {
 
                 if (lfgListing.partyCount === 4) {
-                    interaction.reply({ content: 'This party is full! Please join another or make your own using **/lfg**.', ephemeral: true });
+                    await interaction.reply({ content: 'This party is full! Please join another or make your own using **/lfg**.', ephemeral: true });
                     return;
                 }
 
                 if (lfgListing.partyMembers.includes(userWhoClickedButton)) {
-                    interaction.reply({ content: 'You have already joined this party.', ephemeral: true });
+                    await interaction.reply({ content: 'You have already joined this party.', ephemeral: true });
                     return;
                 }
                 console.log('JOIN detected. Editing Message...');
