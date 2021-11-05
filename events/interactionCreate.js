@@ -31,7 +31,6 @@ module.exports = {
                 }
                 // Did the user click the JOIN Button and were they NOT the person who issued the command?
             } else if (interaction.customId === 'joinButton' && userWhoClickedButton !== userWhoSentCommand) {
-                // const lfgDbDocument = await lfgSchema.findOne({ message_id: messageInteractedWith });
 
                 if (lfgListing.partyCount === 4) {
                     interaction.reply({ content: 'This party is full! Please join another or make your own using **/lfg**.', ephemeral: true });
@@ -48,7 +47,7 @@ module.exports = {
 
                     const receivedEmbed = interaction.message.embeds[0];
                     let partyMembersValue = receivedEmbed.fields[4];
-                    partyMembersValue.value += `\n<@${userWhoClickedButton}> - **${partyMember?.switch_code ? partyMember.switch_code : "N/A"}**`;
+                    partyMembersValue.value += `\n<@${userWhoClickedButton}> - **${partyMember?.switch_code ?? "N/A"}**`;
 
                     const editedEmbed = new MessageEmbed(receivedEmbed);
 
