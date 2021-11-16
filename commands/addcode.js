@@ -25,7 +25,7 @@ module.exports = {
                 interaction.reply(`<@${interaction.user.id}> added their Friend Code successfully!`);
 
             } else { // User exists and update the record with just the new switch code and timezone
-                await memberSchema.updateOne({}, { switch_code: memberCode.switch_code, timezone: memberCode.timezone }, { runValidators: true });
+                await memberSchema.findOneAndUpdate({ id: interaction.user.id }, { switch_code: memberCode.switch_code, timezone: memberCode.timezone }, { runValidators: true });
                 interaction.reply(`<@${interaction.user.id}> already exists in the database. Updated record.`)
             }
         } catch (err) {
