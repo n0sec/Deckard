@@ -16,7 +16,7 @@ module.exports = {
             const lfgListing = await lfgSchema.findOne({ message_id: messageInteractedWith });
 
             if (interaction.customId === 'deleteButton' && userWhoClickedButton === userWhoSentCommand) {
-                console.log('DELETE detected. Deleting message...');
+                console.log(`DELETE detected from ${interaction.user.username}. Deleting message...`);
                 try {
                     // If the message has a thread already or a thread is already archived on the message
                     if (interaction.message.hasThread) {
@@ -41,7 +41,7 @@ module.exports = {
                     await interaction.reply({ content: 'You have already joined this party.', ephemeral: true });
                     return;
                 }
-                console.log('JOIN detected. Editing Message...');
+                console.log(`JOIN detected from ${interaction.user.username} on ${userWhoSentCommandUsername} LFG. Editing Message...`);
                 try {
                     const partyMember = await memberSchema.findOne({ id: userWhoClickedButton });
 
@@ -98,33 +98,38 @@ module.exports = {
                     console.error(err);
                 }
             } else if (interaction.customId === 'endButton' && userWhoClickedButton === userWhoSentCommand) {
-                const existingLfgDocument = await lfgSchema.findOne({ message_id: messageInteractedWith });
-                const existingParty = existingLfgDocument.partyMembers; // Array
+                console.log(`END detected from ${interaction.user.username}. Creating thread...`);
+                try {
+                    const existingLfgDocument = await lfgSchema.findOne({ message_id: messageInteractedWith });
+                    const existingParty = existingLfgDocument.partyMembers; // Array
 
-                // Receive the embed
-                const receivedEmbed = interaction.message.embeds[0];
+                    // Receive the embed
+                    const receivedEmbed = interaction.message.embeds[0];
 
-                // Create a new Embed Object with the received one as a template/starting point
-                const editedEmbed = new MessageEmbed(receivedEmbed);
+                    // Create a new Embed Object with the received one as a template/starting point
+                    const editedEmbed = new MessageEmbed(receivedEmbed);
 
-                // Disable the End button
-                await interaction.message.components[0].components[2].setDisabled();
+                    // Disable the End button
+                    await interaction.message.components[0].components[2].setDisabled();
 
-                // Resend the new, edited Embed
-                await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
+                    // Resend the new, edited Embed
+                    await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
 
-                // Start a thread
-                const thread = await interaction.message.startThread({
-                    name: `${userWhoSentCommandUsername} Party`,
-                    autoArchiveDuration: 60,
-                    reason: 'Party thread',
-                });
+                    // Start a thread
+                    const thread = await interaction.message.startThread({
+                        name: `${userWhoSentCommandUsername} Party`,
+                        autoArchiveDuration: 60,
+                        reason: 'Party thread',
+                    });
 
-                // Whoever is in the existing party when the End button is clicked, add them to the thread
-                await existingParty.forEach(member => thread.members.add(member));
+                    // Whoever is in the existing party when the End button is clicked, add them to the thread
+                    await existingParty.forEach(member => thread.members.add(member));
 
-                // Send a reply so it doesn't need to be deferred
-                await interaction.reply({ content: 'You have ended the LFG early. Members can still join and will be added to the thread that has been created for you.', ephemeral: true });
+                    // Send a reply so it doesn't need to be deferred
+                    await interaction.reply({ content: 'You have ended the LFG early. Members can still join and will be added to the thread that has been created for you.', ephemeral: true });
+                } catch (err) {
+                    console.error(err);
+                }
 
             } else if (interaction.customId === 'leaveButton' && lfgListing.partyMembers.includes(userWhoClickedButton)) {
                 const receivedEmbed = interaction.message.embeds[0];
@@ -132,8 +137,11 @@ module.exports = {
 
                 const regex = new RegExp(`\\n?<@!?${userWhoClickedButton}>.*\\n?`);
 
+                console.log(`LEAVE detected from ${interaction.user.username} on ${userWhoSentCommandUsername} LFG. Editing Message...`);
+
                 if (interaction.message.hasThread) {
                     try {
+
                         // Remove user from thread
                         await interaction.message.thread.members.remove(userWhoClickedButton);
 
@@ -174,11 +182,17 @@ module.exports = {
                             await interaction.message.components[0].components[0].setDisabled(false);
                         }
 
+                        // If there's only one user left and they try to leave
+                        // This has to be here or else Discord complains about empty string fields
                         if (partyMembersValue.value === '') {
                             await interaction.reply({ content: 'You cannot leave if you are the last member. If you initiated the command, please delete the message instead using the Delete button.', ephemeral: true });
                         }
 
                         const editedEmbed = new MessageEmbed(receivedEmbed);
+
+                        if (lfgListing.partyCount < 4) {
+                            editedEmbed.setTitle('LFG - OPEN');
+                        }
 
                         // Remove user from database and decrement partyCount
                         await lfgSchema.updateOne({ message_id: messageInteractedWith }, { $pull: { partyMembers: userWhoClickedButton }, $inc: { partyCount: -1 } });
