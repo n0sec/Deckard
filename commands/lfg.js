@@ -22,9 +22,10 @@ module.exports = {
             .setDescription('Ladder or Non-Ladder')
             .setRequired(true)
             .addChoice('Ladder', 'Ladder')
-            .addChoice('Non-Ladder', 'Non-Ladder'))
-        .addStringOption(option => option.setName('members').setDescription('The existing members in your party').setRequired(false)),
+            .addChoice('Non-Ladder', 'Non-Ladder')),
+    // .addStringOption(option => option.setName('members').setDescription('The existing members in your party').setRequired(false)),
     async execute(interaction) {
+        const host = interaction.user.id;
         const querySc = {
             "user_id": interaction.user.id,
             "channel_id": lfgChannel
@@ -36,13 +37,15 @@ module.exports = {
         }
         // Find any document from the sc-lfg channel or hc-lfg channel
         const lfgDbDocument = await lfgSchema.findOne().or([querySc, queryHc]);
+        const memberDocument = await memberSchema.findOne({ id: host });
+
         // If lfgDbDocument isn't null or undefined
         // Someone has posted before and we should handle it below
         if (lfgDbDocument !== null && lfgDbDocument !== undefined) {
             await interaction.channel.messages.fetch(lfgDbDocument.message_id)
                 // Delete before telling the user
                 .then(async msg => {
-                    console.log('Command issued twice for same user. Deleting old message and threads...');
+                    console.log(`Command issued twice for ${interaction.user.tag}. Deleting old message and threads...`);
                     // Check if the message has a thread attached
                     if (msg.hasThread) {
                         await msg.thread.delete();
@@ -59,42 +62,44 @@ module.exports = {
             const difficulty = interaction.options.getString('difficulty');
             const objective = interaction.options.getString('objective');
             const ladder = interaction.options.getString('ladder');
-            const members = interaction.options.getString('members');
+            // const members = interaction.options.getString('members');
 
             // Split the items by comma
-            const membersArray = members?.trim().split(','); // Array
+            // const membersArray = members?.trim().split(','); // Array
 
-            if (membersArray?.length === 3) {
-                await interaction.reply({ content: 'There\'s no need to make a listing if you already have a full party. Pick an open game channel.', ephemeral: true })
-            }
+            // if (membersArray?.length === 3) {
+            //     await interaction.reply({ content: 'There\'s no need to make a listing if you already have a full party. Pick an open game channel.', ephemeral: true });
+            //     return;
+            // }
 
             if (level > 99) {
                 await interaction.reply({ content: 'Level must be 99 or less.', ephemeral: true });
+                return;
             }
 
-            // Just the host in an array
-            const hostArray = [interaction.member.id];
+            // // Just the host in an array
+            // const hostArray = [interaction.member.id];
 
-            // If membersArray is some truthy value then add it to the hostArray (appends to end)
-            // Else only the host was specified/members was not specified as an option
-            const partyMembersArray = membersArray ? hostArray.concat(membersArray) : hostArray; // Array1
+            // // If membersArray is some truthy value then add it to the hostArray (appends to end)
+            // // Else only the host was specified/members was not specified as an option
+            // const partyMembersArray = membersArray ? hostArray.concat(membersArray) : hostArray; // Array1
 
-            // Get the length of partyMembersArray
-            const partyMembersLength = partyMembersArray.length;
+            // // Get the length of partyMembersArray
+            // const partyMembersLength = partyMembersArray.length;
 
-            const membersDbInfo = await memberSchema.find({ id: partyMembersArray }); // Array2
+            // const membersDbInfo = await memberSchema.find({ id: partyMembersArray }); // Array2
 
-            for (partyMember of partyMembersArray) {
-                if (!membersDbInfo.some(member => member.id === partyMember)) {
-                    const nonExistingMember = {
-                        id: partyMember,
-                        switch_code: null
-                    }
-                    membersDbInfo.push(nonExistingMember);
-                }
-            }
+            // for (partyMember of partyMembersArray) {
+            //     if (!membersDbInfo.some(member => member.id === partyMember)) {
+            //         const nonExistingMember = {
+            //             id: partyMember,
+            //             switch_code: null
+            //         }
+            //         membersDbInfo.push(nonExistingMember);
+            //     }
+            // }
 
-            const membersMapArray = membersDbInfo.map(member => `<@${member.id}> - **${member?.switch_code ?? "N/A"}**`).join('\n');
+            // const membersMapArray = membersDbInfo.map(member => `<@${member.id}> - **${member?.switch_code ?? "N/A"}**`).join('\n');
 
             const row = new MessageActionRow()
                 .addComponents(
@@ -125,7 +130,7 @@ module.exports = {
                 .addField('Difficulty', `${difficulty}`, true)
                 .addField('Objective', `${objective}`, true)
                 .addField('Ladder', `${ladder}`, true)
-                .addField('Party Members', `${membersMapArray}`, true)
+                .addField('Party Members', `<@${host}> - **${memberDocument?.switch_code ?? "N/A"}**`, true)
                 .setTimestamp()
 
             await interaction.reply({
@@ -141,8 +146,8 @@ module.exports = {
                         tag: interaction.user.tag,
                         channel_id: reply.channelId,
                         // If the 'members' Option is not specified (i.e. null), return just the user who initiated the command as the only party member
-                        partyMembers: partyMembersArray,
-                        partyCount: partyMembersLength
+                        partyMembers: host,
+                        partyCount: 1
                     }
                     await new lfgSchema(storedMessage).save();
                 } catch (err) {
