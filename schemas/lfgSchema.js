@@ -8,7 +8,7 @@ const reqString = {
 const lfgSchema = mongoose.Schema({
     message_id: reqString,
     user_id: reqString,
-    tag: reqString,
+    user_tag: reqString,
     channel_id: reqString,
     partyMembers: [String],
     partyCount: {

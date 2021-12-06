@@ -143,7 +143,7 @@ module.exports = {
                     const storedMessage = {
                         message_id: reply.id,
                         user_id: interaction.member.id,
-                        tag: interaction.user.tag,
+                        user_tag: interaction.user.tag,
                         channel_id: reply.channelId,
                         // If the 'members' Option is not specified (i.e. null), return just the user who initiated the command as the only party member
                         partyMembers: host,
