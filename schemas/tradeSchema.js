@@ -14,7 +14,8 @@ const tradeSchema = mongoose.Schema({
         validate: /^(WTS|WTB)$/i,
         required: true
     },
-    channel_id: reqString
+    channel_id: reqString,
+    date_listed: Date
 });
 
 module.exports = mongoose.model('tradeposts', tradeSchema);
