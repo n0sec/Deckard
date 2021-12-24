@@ -1,4 +1,4 @@
-const { welcomeChannel } = require("../channels.json");
+const { reactionRolesChannel } = require("../channels.json");
 const { guildId } = require("../config.json")
 
 module.exports = {
@@ -13,6 +13,11 @@ module.exports = {
         const pallyRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === "Paladin");
         const sorcRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === "Sorceress");
 
+        // Set the Character Type and Ladder Type
+        const scRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Softcore');
+        const hcRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Hardcore');
+        const ladderRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Ladder');
+        const nonLadderRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Non-Ladder');
 
         // Get the emoji IDs from Discord
         // \:emoji_name:
@@ -31,32 +36,44 @@ module.exports = {
         }
 
         // Remove roles if the reaction has been de-selected
-        if (reaction.message.channel.id === welcomeChannel && !user.bot) {
-            if (reaction.emoji.id === sinEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(sinRole);
+        if (reaction.message.channel.id === reactionRolesChannel && !user.bot) {
+            switch (reaction.emoji.id) {
+                // Character classes
+                case sinEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(sinRole);
+                    break;
+                case zonEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(zonRole);
+                    break;
+                case barbEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(barbRole);
+                    break;
+                case druidEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(druidRole);
+                    break;
+                case necroEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(necroRole);
+                    break;
+                case pallyEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(pallyRole);
+                    break;
+                case sorcEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(sorcRole);
+                    break;
+                // Character Types and Ladder/Non-Ladder
+                case scEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(scRole);
+                    break;
+                case hcEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(hcRole);
+                    break;
+                case ladderEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(ladderRole);
+                    break;
+                case nonLadderEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.remove(nonLadderRole);
+                    break;
             }
-            if (reaction.emoji.id === zonEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(zonRole);
-            }
-            if (reaction.emoji.id === barbEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(barbRole);
-            }
-            if (reaction.emoji.id === druidEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(druidRole);
-            }
-            if (reaction.emoji.id === necroEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(necroRole);
-            }
-            if (reaction.emoji.id === pallyEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(pallyRole);
-            }
-            if (reaction.emoji.id === sorcEmoji) {
-                await reaction.message.guild.members.cache.get(user.id).roles.remove(sorcRole);
-            }
-        } else {
-            return;
         }
-
-
-    }
+    },
 }
