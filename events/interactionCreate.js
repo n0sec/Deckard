@@ -1,5 +1,6 @@
 const lfgSchema = require('../schemas/lfgSchema');
 const memberSchema = require('../schemas/memberSchema');
+const { guildId } = require('../config.json');
 const { MessageEmbed } = require("discord.js");
 
 module.exports = {
@@ -208,6 +209,60 @@ module.exports = {
                 // If the user does something they aren't supposed to, send a generic reply
                 interaction.reply({ content: 'You are not allowed to do that.', ephemeral: true })
             }
+        } else if (interaction.isSelectMenu()) {
+            if (interaction.customId === 'classroles') {
+                // Filter for all the editable roles in the server
+                const editableRoles = interaction.member.roles.cache.filter(role => role.editable);
+
+                // Map the role ID to an array
+                const editableRolesArray = editableRoles.map(role => role.id);
+
+                // Add the selected choices from the Select Menu to the above array
+                const newEditableRolesArray = editableRolesArray.concat(interaction.values);
+
+                // Filter for all the non-editable roles in the server (i.e. everyone)
+                const nonEditableRoles = interaction.member.roles.cache.filter(role => !role.editable);
+
+                // Map the role ID to an array
+                const nonEditableRolesArray = nonEditableRoles.map(role => role.id);
+
+                // Add the selected choices from the Select Menu to the above array
+                const newNonEditableRolesArray = nonEditableRolesArray.concat(interaction.values);
+
+                const editableAndNonEditableRoles = newNonEditableRolesArray.concat(editableRolesArray);
+
+                // If the member has a role in editableRoles (i.e. Wanderer or something assigned in classroles or charroles), don't remove it
+                console.log(`Editable Roles: ${newEditableRolesArray}`);
+                console.log(`Non-Editable Roles: ${newNonEditableRolesArray}`);
+                if (newEditableRolesArray.length > 0) {
+                    try {
+                        await interaction.member.roles.set(newEditableRolesArray);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+
+                await interaction.deferUpdate();
+            } else if (interaction.customId === 'charroles') {
+                const editableRoles = interaction.member.roles.cache.filter(role => role.editable);
+                const editableRolesArray = editableRoles.map(role => role.id);
+                const newEditableRolesArray = editableRolesArray.concat(interaction.values);
+
+                const nonEditableRoles = interaction.member.roles.cache.filter(role => !role.editable);
+                const nonEditableRolesArray = nonEditableRoles.map(role => role.id);
+                const newNonEditableRolesArray = nonEditableRolesArray.concat(interaction.values);
+
+                console.log(newEditableRolesArray.length);
+                console.log(newEditableRolesArray);
+                // If the member has a role in editableRoles (i.e. Wanderer or something assigned in classroles or charroles), don't remove it
+                if (newEditableRolesArray.length > 0) {
+                    await interaction.member.roles.add(newEditableRolesArray);
+                } else {
+                    await interaction.member.roles.set(newNonEditableRolesArray);
+                }
+
+                await interaction.deferUpdate();
+            }
         }
 
         if (!interaction.isCommand()) return;
@@ -224,3 +279,13 @@ module.exports = {
         }
     }
 };
+
+
+// const nonEditableRoles = interaction.member.roles.cache.filter(role => !role.editable);
+// const editableRolesArray = nonEditableRoles.map(role => role.id);
+
+// const newEditableRolesArray = editableRolesArray.concat(interaction.values);
+
+// await interaction.member.roles.set(newEditableRolesArray);
+
+// await interaction.deferUpdate();
