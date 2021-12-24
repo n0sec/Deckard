@@ -1,4 +1,4 @@
-const { welcomeChannel } = require("../channels.json");
+const { reactionRolesChannel } = require("../channels.json");
 const { guildId } = require("../config.json");
 
 module.exports = {
@@ -19,6 +19,12 @@ module.exports = {
         const pallyRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === "Paladin");
         const sorcRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === "Sorceress");
 
+        // Set the Character Type and Ladder Type
+        const scRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Softcore');
+        const hcRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Hardcore');
+        const ladderRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Ladder');
+        const nonLadderRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Non-Ladder');
+
         // Get the emoji IDs from Discord
         // \:emoji_name:
         const sinEmoji = '892211955236999219';
@@ -29,8 +35,9 @@ module.exports = {
         const pallyEmoji = '892211954993733653';
         const sorcEmoji = '892211955597713468';
 
-        if (reaction.message.channel.id === welcomeChannel) {
+        if (reaction.message.channel.id === reactionRolesChannel && !user.bot) {
             switch (reaction.emoji.id) {
+                // Character classes
                 case sinEmoji:
                     await reaction.message.guild.members.cache.get(user.id).roles.add(sinRole);
                     break;
@@ -51,6 +58,19 @@ module.exports = {
                     break;
                 case sorcEmoji:
                     await reaction.message.guild.members.cache.get(user.id).roles.add(sorcRole);
+                    break;
+                // Character Types and Ladder/Non-Ladder
+                case scEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.add(scRole);
+                    break;
+                case hcEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.add(hcRole);
+                    break;
+                case ladderEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.add(ladderRole);
+                    break;
+                case nonLadderEmoji:
+                    await reaction.message.guild.members.cache.get(user.id).roles.add(nonLadderRole);
                     break;
             }
         }
