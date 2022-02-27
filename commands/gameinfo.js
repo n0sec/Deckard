@@ -20,6 +20,13 @@ module.exports = {
             subcommand
                 .setName('ar')
                 .setDescription('Information about Attack Rating')),
+    description: `Assorted game information/definitions. See the Subcommands for available selections.
+
+**Subcommands:**
+- **mf:** Magic Find information/tips
+- **crushingblow:** Information about Crushing Blow
+- **openwounds:** Information about Open Wounds
+- **ar:** Information about Attack Rating`,
     async execute(interaction) {
         switch (interaction.options.getSubcommand()) {
             case 'mf':

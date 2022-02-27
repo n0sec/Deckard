@@ -108,6 +108,14 @@ module.exports = {
                     .addChoice('Wind', 'Wind')
                     .addChoice('Wrath', 'Wrath')
                     .addChoice('Zephyr', 'Zephyr'))),
+    description: `Returns an image of the stats for a selected Runeword. Broken up into different categories/subcommands for ease of use. All Runewords are in alphabetical order.
+
+**Subcommands:**
+- **body-armor:** Body Armor Runewords
+- **head-armor:** Head Armor Runewords
+- **shields:** Shield Runewords
+- **weapons1:** Weapons A-I Runewords
+- **weapons2:** Weapons K-Z Runewords`,
 
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();

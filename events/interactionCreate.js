@@ -1,6 +1,5 @@
 const lfgSchema = require('../schemas/lfgSchema');
 const memberSchema = require('../schemas/memberSchema');
-const { guildId } = require('../config.json');
 const { MessageEmbed } = require("discord.js");
 
 module.exports = {
@@ -71,9 +70,8 @@ module.exports = {
                         // Change the Embed title to indicate it's full
                         editedEmbed.setTitle('LFG - FULL');
 
-                        // Set the JOIN and EDIT button to disabled
+                        // Set the JOIN button to disabled
                         await interaction.message.components[0].components[0].setDisabled();
-                        await interaction.message.components[0].components[2].setDisabled();
 
                         // Edit the Embed and send the new components
                         await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
@@ -98,40 +96,6 @@ module.exports = {
                 } catch (err) {
                     console.error(err);
                 }
-            } else if (interaction.customId === 'endButton' && userWhoClickedButton === userWhoSentCommand) {
-                console.log(`END detected from ${interaction.user.username}. Creating thread...`);
-                try {
-                    const existingLfgDocument = await lfgSchema.findOne({ message_id: messageInteractedWith });
-                    const existingParty = existingLfgDocument.partyMembers; // Array
-
-                    // Receive the embed
-                    const receivedEmbed = interaction.message.embeds[0];
-
-                    // Create a new Embed Object with the received one as a template/starting point
-                    const editedEmbed = new MessageEmbed(receivedEmbed);
-
-                    // Disable the End button
-                    await interaction.message.components[0].components[2].setDisabled();
-
-                    // Resend the new, edited Embed
-                    await interaction.message.edit({ embeds: [editedEmbed], components: [interaction.message.components[0]] });
-
-                    // Start a thread
-                    const thread = await interaction.message.startThread({
-                        name: `${userWhoSentCommandUsername} Party`,
-                        autoArchiveDuration: 60,
-                        reason: 'Party thread',
-                    });
-
-                    // Whoever is in the existing party when the End button is clicked, add them to the thread
-                    await existingParty.forEach(member => thread.members.add(member));
-
-                    // Send a reply so it doesn't need to be deferred
-                    await interaction.reply({ content: 'You have ended the LFG early. Members can still join and will be added to the thread that has been created for you.', ephemeral: true });
-                } catch (err) {
-                    console.error(err);
-                }
-
             } else if (interaction.customId === 'leaveButton' && lfgListing.partyMembers.includes(userWhoClickedButton)) {
                 const receivedEmbed = interaction.message.embeds[0];
                 let partyMembersValue = receivedEmbed.fields[4];
@@ -209,60 +173,6 @@ module.exports = {
                 // If the user does something they aren't supposed to, send a generic reply
                 interaction.reply({ content: 'You are not allowed to do that.', ephemeral: true })
             }
-        } else if (interaction.isSelectMenu()) {
-            if (interaction.customId === 'classroles') {
-                // Filter for all the editable roles in the server
-                const editableRoles = interaction.member.roles.cache.filter(role => role.editable);
-
-                // Map the role ID to an array
-                const editableRolesArray = editableRoles.map(role => role.id);
-
-                // Add the selected choices from the Select Menu to the above array
-                const newEditableRolesArray = editableRolesArray.concat(interaction.values);
-
-                // Filter for all the non-editable roles in the server (i.e. everyone)
-                const nonEditableRoles = interaction.member.roles.cache.filter(role => !role.editable);
-
-                // Map the role ID to an array
-                const nonEditableRolesArray = nonEditableRoles.map(role => role.id);
-
-                // Add the selected choices from the Select Menu to the above array
-                const newNonEditableRolesArray = nonEditableRolesArray.concat(interaction.values);
-
-                const editableAndNonEditableRoles = newNonEditableRolesArray.concat(editableRolesArray);
-
-                // If the member has a role in editableRoles (i.e. Wanderer or something assigned in classroles or charroles), don't remove it
-                console.log(`Editable Roles: ${newEditableRolesArray}`);
-                console.log(`Non-Editable Roles: ${newNonEditableRolesArray}`);
-                if (newEditableRolesArray.length > 0) {
-                    try {
-                        await interaction.member.roles.set(newEditableRolesArray);
-                    } catch (err) {
-                        console.error(err);
-                    }
-                }
-
-                await interaction.deferUpdate();
-            } else if (interaction.customId === 'charroles') {
-                const editableRoles = interaction.member.roles.cache.filter(role => role.editable);
-                const editableRolesArray = editableRoles.map(role => role.id);
-                const newEditableRolesArray = editableRolesArray.concat(interaction.values);
-
-                const nonEditableRoles = interaction.member.roles.cache.filter(role => !role.editable);
-                const nonEditableRolesArray = nonEditableRoles.map(role => role.id);
-                const newNonEditableRolesArray = nonEditableRolesArray.concat(interaction.values);
-
-                console.log(newEditableRolesArray.length);
-                console.log(newEditableRolesArray);
-                // If the member has a role in editableRoles (i.e. Wanderer or something assigned in classroles or charroles), don't remove it
-                if (newEditableRolesArray.length > 0) {
-                    await interaction.member.roles.add(newEditableRolesArray);
-                } else {
-                    await interaction.member.roles.set(newNonEditableRolesArray);
-                }
-
-                await interaction.deferUpdate();
-            }
         }
 
         if (!interaction.isCommand()) return;
@@ -279,13 +189,3 @@ module.exports = {
         }
     }
 };
-
-
-// const nonEditableRoles = interaction.member.roles.cache.filter(role => !role.editable);
-// const editableRolesArray = nonEditableRoles.map(role => role.id);
-
-// const newEditableRolesArray = editableRolesArray.concat(interaction.values);
-
-// await interaction.member.roles.set(newEditableRolesArray);
-
-// await interaction.deferUpdate();

@@ -1,9 +1,10 @@
 const tradeSchema = require('../schemas/tradeSchema');
+const { guildId } = require("../config.json");
 const { tradeChannel, hcTradeChannel } = require('../channels.json');
 
 module.exports = {
     name: 'messageCreate',
-    async execute(message, client) {
+    async execute(message) {
         const messageAuthor = message.author.id;
         const messageAuthorTag = message.author.tag;
         const messageId = message.id;
@@ -14,10 +15,25 @@ module.exports = {
             return;
         }
 
-        // Only listen for messages in these channels
-        // tradeChannel is #bot-testing when dev
-        if (message.channel.name.endsWith('trading') || message.channel.id === tradeChannel) {
+        if (message.channel.type === 'DM') {
+            let guild = message.client.guilds.cache.get(guildId);
+            const commandCollection = await guild.commands.fetch()
+                .catch(console.error);
 
+            let formattedHelp = ``;
+            for (const [, command] of commandCollection) {
+                formattedHelp += `**${command.name}** - ${command.description}\n`
+                console.log(command.name);
+                command.options.forEach(option => {
+                    formattedHelp += `    **- ${option.name}** (${option.type.replace('_', ' ')}): ${option.description}\n`
+                    console.log(option.name);
+                });
+            }
+            // Output the help message
+            message.channel.send(`Hello! Thanks for reaching out. Below are a list of my commands and their descriptions. **Note** All commands start with \`/\`\n\n${formattedHelp}`);
+
+            // Only listen for messages in these channels
+        } else if (message.channel.name.endsWith('trading') || message.channel.id === tradeChannel) {
             // Get a count of the messages that the person speaking has sent in the current channel
             // This should exclude anything from the opposite channel
             // For example, if a user sends something in sc-trading, this should not get any records from hc-trading
@@ -56,7 +72,7 @@ module.exports = {
                     .catch(console.error);
 
                 // Let the user know they had too many listings and they can try again
-                // await message.author.send(`Hello! You recently made a trade listing that was over the limit of 2 per trade channel. I have included the post in this message so you can resend.\n\n${message.content}`)
+                // await message.author.send(`Hello! You recently made a trade listing that was over the limit of 2 per trade channel.I have included the post in this message so you can resend.\n\n${ message.content }`)
             } else {
                 // If the message starts with the "tag" 'WTS' or 'WTB' then begin listening
                 if (message.content.toLowerCase().startsWith('wts') || message.content.toLowerCase().startsWith('wtb')) {
@@ -65,7 +81,7 @@ module.exports = {
                     if (lineCount > 15) {
                         const longMessageContent = message.content;
                         message.delete()
-                        await message.author.send(`Hello! You recently made a trade listing that was ${lineCount} lines. The limit is 15. I have included the post in this message so you can revise and resend.\n\n${longMessageContent}`)
+                        await message.author.send(`Hello! You recently made a trade listing that was ${lineCount} lines.The limit is 15. I have included the post in this message so you can revise and resend.\n\n${longMessageContent}`)
                     } else {
                         try {
                             const tradeListing = {
@@ -100,5 +116,3 @@ module.exports = {
         }
     }
 };
-
-// 

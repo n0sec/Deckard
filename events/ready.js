@@ -1,5 +1,6 @@
-const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
 const { welcomeChannel, reactionRolesChannel } = require("../channels.json");
+const { sinEmoji, zonEmoji, barbEmoji, druidEmoji, necroEmoji, pallyEmoji, sorcEmoji, softcoreEmoji, hardcoreEmoji, ladderEmoji, nonLadderEmoji } = require("../constants.json");
 
 
 module.exports = {
@@ -8,7 +9,7 @@ module.exports = {
     async execute(client) {
 
         // Set custom status
-        client.user.setActivity('Stay a while and listen!');
+        client.user.setActivity('DM "help" for help with commands!');
 
         // Log that the bot started
         console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -23,83 +24,26 @@ module.exports = {
         if (roleChannelMessages?.size) {
             console.log('#roles channel message already set!');
         } else {
-            const classesRow = new MessageActionRow()
-                .addComponents(
-                    new MessageSelectMenu()
-                        .setCustomId('classroles')
-                        .setPlaceholder('Class Roles')
-                        .setMinValues(0)
-                        .setMaxValues(7)
-                        .addOptions([
-                            {
-                                label: 'Amazon',
-                                value: '892212833213894706',
-                            },
-                            {
-                                label: 'Assassin',
-                                value: '892213019038318672',
-                            },
-                            {
-                                label: 'Barbarian',
-                                value: '892213393547743283',
-                            }, {
-                                label: 'Druid',
-                                value: '892213151330865182',
-                            }, {
-                                label: 'Necromancer',
-                                value: '892213250928828426',
-                            }, {
-                                label: 'Paladin',
-                                value: '892213339181170800',
-                            },
-                            {
-                                label: 'Sorceress',
-                                value: '892212545270714368',
-                            },
-                        ]),
-                );
-
-            const charTypeRow = new MessageActionRow()
-                .addComponents(
-                    new MessageSelectMenu()
-                        .setCustomId('charroles')
-                        .setPlaceholder('Character Roles')
-                        .setMinValues(0)
-                        .setMaxValues(4)
-                        .addOptions([
-                            {
-                                label: 'Softcore',
-                                value: '918522027416113173',
-                            },
-                            {
-                                label: 'Hardcore',
-                                value: '918522081728163891',
-                            },
-                            {
-                                label: 'Ladder',
-                                value: '918522120957468712',
-                            }, {
-                                label: 'Non-Ladder',
-                                value: '918522153622712390',
-                            },
-                        ]),
-                );
             // Create the <Embed>
             const classRoleEmbed = new MessageEmbed()
                 .setColor('#4a0400')
                 .setTitle('Diablo II: Resurrected Switch Server Class Selection')
                 .setAuthor('❤️ The Horadrim')
-                .setDescription(`Please read the rules in <#${welcomeChannel}> first before proceeding. Ignorance is not an excuse. By participating in the server, you agree that you have read the rules and agree to them without exception.
-
-Please select a class from the attached dropdown to add that classes's role to yourself! Members may ping the role to ask questions, giveaway items, etc. You can select as many as you want but keep in mind this may result in more notifications.
-
-If you have any questions, feel free to DM a <@&891492181423046727> member!`);
+                .setDescription(`React to this message with one of the following to get that role:
+                
+:claw_mastery: - **Assassin**
+:valkyrie: - **Amazon**
+:whirlwind: - **Barbarian**
+:summon_grizzly: - **Druid**
+:raise_skeleton: - **Necromancer**
+:blessed_hammer: - **Paladin**
+:blizzard: - **Sorceress**`);
 
             const charRoleEmbed = new MessageEmbed()
                 .setColor('#4a0400')
                 .setTitle('Diablo II: Resurrected Switch Server Character Role Selection')
                 .setAuthor('❤️ The Horadrim')
-                .setDescription(`Select a character type from the attached dropdown. This will add that role to your profile. The options are:
+                .setDescription(`React to this message with one of the following to get that role:
 
 -Softcore
 -Hardcore
@@ -108,8 +52,29 @@ If you have any questions, feel free to DM a <@&891492181423046727> member!`);
 
 You may select any number of these to let others know what kind of player you are. In a future update, these roles will act as options to what channels you see in your channel list. For now, they're just flavoring.`);
 
-            await roleChannelObject.send({ embeds: [classRoleEmbed], components: [classesRow] });
-            await roleChannelObject.send({ embeds: [charRoleEmbed], components: [charTypeRow] });
+            const classEmbed = await roleChannelObject.send({ embeds: [classRoleEmbed] });
+            const charEmbed = await roleChannelObject.send({ embeds: [charRoleEmbed] });
+
+            // FIXME: There's a lot of API calls with these. If I can ever fix this...let's do that
+            // Class Role Reactions
+            try {
+                await classEmbed.react(sinEmoji);
+                await classEmbed.react(zonEmoji);
+                await classEmbed.react(barbEmoji);
+                await classEmbed.react(druidEmoji);
+                await classEmbed.react(necroEmoji);
+                await classEmbed.react(pallyEmoji);
+                await classEmbed.react(sorcEmoji);
+
+                // Char Role Reactions
+                await charEmbed.react(softcoreEmoji);
+                await charEmbed.react(hardcoreEmoji);
+                await charEmbed.react(ladderEmoji);
+                await charEmbed.react(nonLadderEmoji);
+            } catch (err) {
+                console.error('One of the emoji failed to react:', err);
+            }
+
 
         }
 
@@ -153,16 +118,16 @@ staff members reserve the right to enact punishment accordingly.
 
 **14.** Please do not engage in Real Money Trading on this server. Punishment will follow server policy. Discussion regarding prices in terms of FG is OK but please do not buy, sell or trade FG or items for real money in the server.
 
+**15.** Loot rules are presumed to be Free-For-All unless otherwise specified by the host or otherwise agreed upon by the entire party. Moderators will not get involved in loot disputes (unless other rules are being broken) as these should be handled by those in the party.
+
 If you have any questions, please reach out to a <@&891492181423046727> member.
 
 __**Server punishment policy**__
 **1.** If a moderator feels you have broken a rule they will give a simple verbal warning to change your behavior. This is not a strike, but can escalate to one if the behavior continues.
 
-**2.** If you continue to break a rule or the violation is severe enough then you will be given a bot warning, this will be permanent and is considered a strike against you. 
+**2.** If you continue to break the rules after being muted or kicked once you will be banned on the next infraction. You may appeal your ban by contacting a staff member after three months have passed since the ban.
 
-**3.** If you continue to break the rules after being muted or kicked once you will be banned on the next infraction. You may appeal your ban by contacting a staff member after three months have passed since the ban.
-
-**5.** We will enforce a zero-tolerance policy on newcomers. If you recently joined and begin to push or violate rules, you will be treated differently than a long-term user. Be on your best behaviour, and set a good example. For example, if you join, and immediately ignore a verbal warning to stop, there is a high chance of being banned on the spot.
+**3.** We will enforce a zero-tolerance policy on newcomers. If you recently joined and begin to push or violate rules, you will be treated differently than a long-term user. Be on your best behaviour, and set a good example. For example, if you join, and immediately ignore a verbal warning to stop, there is a high chance of being banned on the spot.
 
 If the initial violation is severe enough, such as posting blatant NSFW or attempting to raid the server you will be muted or banned on the spot regardless of previous violations.`);
 
@@ -175,26 +140,32 @@ If the initial violation is severe enough, such as posting blatant NSFW or attem
 <#897470401091870801> - The announcements channel. Admins will post information regarding Blizzard updates and this Discord server updates
 <#918523016827269152> - The roles channel. Go here to add class and character roles to see or remove yourself from certain channels
 
-**GENERAL**
+**COMMUNITY**
+<#923742062355042364> - All general D2R Discussion goes here
+<#895858420928892958> - Show off that sweet loot! Keep discussion to the postings only please
 <#890339324107845632> - Add your friend code, profile name, and Timezone here
 <#890379488226066483> - Different links and guides for D2R. Class-specific builds do not go here. Please put those in the class specific channels (described below)
-<#895858420928892958> - Show off that sweet loot! Keep discussion to the postings only please
 <#900382224313118781> - Ask the community what an item is worth
 <#896813603963945034> - All other off-topic chats go here
+<#923795185241034762> - Other unrelated D2R Giveaways from the mods will go here
 
 **PVP-CENTRAL**
 <#916850855385366598> - The rules of the PvP Tournament that is going on or coming up
 <#917407833165811742> - The results of the PvP Tournament that just completed
+<#917407016052482108> - The tournament lobby channel
+<#917407301948805172> - Tournament Chat #1
+<#917407444563550239> - Tournament Chat #2
 
-**CHARACTER TYPE CHANNELS (SOFTCORE/HARDCORE)**
-There are two categories for Softcore and Hardcore. Both ladder and non-ladder discussions can take place in here. We could not break up the different combinations of characters that people could have so we left it at softcore and hardcore. Each channel is prefixed with either "sc" or "hc" to denote Softcore or Hardcore. They have the same types of channels.
+**CHARACTER TYPE CHANNELS (SOFTCORE/HARDCORE; LADDER & NON-LADDER)**
+There are two categories for Softcore and Hardcore, Ladder and Non-Ladder. Each channel is prefixed with either "sc" or "hc" to denote Softcore or Hardcore followed by "la" for ladder or "nl" for non-ladder. They have the same types of channels.
 
 **general** - Discuss anything related to D2R
-**trading** - Trade listings go here. Mark your trades with "WTS" or "WTB"
+**trading** - Trade listings go here. Mark your trades with "WTS" or "WTB" for your listing to be sent
+**price-checks** - Check for prices for your game type
 **looking-for-group** - Create LFG posts using the bot command **/lfg**. Follow the prompts and create an lfg listing
 **rush-me-plz** - Ask for rushes here
-**giveaways** - Giveaways for different items will be posted here
 **pvp** - Any tournament announcements or PvP announcements go here
+**giveaways** - Giveaways for different items will be posted here
 
 **CLASSES**
 These are the channels dedicated to the 7 classes of the game. Discuss anything class related here. Guides and videos are fine here. Please still use <#891014799117393922> or <#895814291595350016> for all trading needs.

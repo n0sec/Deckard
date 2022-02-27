@@ -4,7 +4,7 @@ const memberSchema = require('../schemas/memberSchema');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('findcode')
-        .setDescription('Searches the database for the mentioned user')
+        .setDescription('Searches the database for the mentioned user and retrieves their Switch Code')
         .addMentionableOption(option => option.setName('user').setDescription('User to search for!').setRequired(true)),
     async execute(interaction) {
         try {

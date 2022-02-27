@@ -4,10 +4,16 @@ const memberSchema = require('../schemas/memberSchema');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('addcode')
-        .setDescription('Adds your Switch friend code to the database!')
-        .addStringOption(option => option.setName('code').setDescription('Your Switch Friend Code. SW-XXXX-XXXX-XXXX').setRequired(true))
+        .setDescription('Adds your Switch Friend Code to the database!')
+        .addStringOption(option => option.setName('code').setDescription('Your Switch Friend Code. Formatted as SW-XXXX-XXXX-XXXX').setRequired(true))
         .addStringOption(option => option.setName('name').setDescription('Your Switch Profile Name').setRequired(true))
         .addStringOption(option => option.setName('timezone').setDescription('The timezone you are in/play most in').setRequired(false)),
+    description: `Adds your Switch Friend Code to the database
+
+**Options:**
+- code: Your Switch Friend Code. Formatted as SW-XXXX-XXXX-XXXX
+- name: Your Switch Profile Name
+- timezone: The timezone you are in/play most in`,
     async execute(interaction) {
         try {
             const memberCode = {

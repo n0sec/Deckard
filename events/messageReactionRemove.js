@@ -13,12 +13,6 @@ module.exports = {
         const pallyRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === "Paladin");
         const sorcRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === "Sorceress");
 
-        // Set the Character Type and Ladder Type
-        const scRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Softcore');
-        const hcRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Hardcore');
-        const ladderRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Ladder');
-        const nonLadderRole = client.guilds.cache.get(guildId).roles.cache.find(role => role.name === 'Non-Ladder');
-
         // Get the emoji IDs from Discord
         // \:emoji_name:
         const sinEmoji = '892211955236999219';
@@ -59,19 +53,6 @@ module.exports = {
                     break;
                 case sorcEmoji:
                     await reaction.message.guild.members.cache.get(user.id).roles.remove(sorcRole);
-                    break;
-                // Character Types and Ladder/Non-Ladder
-                case scEmoji:
-                    await reaction.message.guild.members.cache.get(user.id).roles.remove(scRole);
-                    break;
-                case hcEmoji:
-                    await reaction.message.guild.members.cache.get(user.id).roles.remove(hcRole);
-                    break;
-                case ladderEmoji:
-                    await reaction.message.guild.members.cache.get(user.id).roles.remove(ladderRole);
-                    break;
-                case nonLadderEmoji:
-                    await reaction.message.guild.members.cache.get(user.id).roles.remove(nonLadderRole);
                     break;
             }
         }

@@ -8,21 +8,27 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('lfg')
         .setDescription('Creates a post with information for grouping up with others.')
-        .addIntegerOption(option => option.setName('level').setDescription('The level of the leader').setRequired(true))
+        .addIntegerOption(option => option.setName('level').setDescription('The level of the host').setRequired(true))
         .addStringOption(option => option
             .setName('difficulty')
-            .setDescription('Normal/Nightmare/Hell')
+            .setDescription('The difficulty you are playing in. Choices are Normal, Nightmare and Hell')
             .setRequired(true)
             .addChoice('Normal', 'Normal')
             .addChoice('Nightmare', 'Nightmare')
             .addChoice('Hell', 'Hell'))
-        .addStringOption(option => option.setName('objective').setDescription('The objective of the party').setRequired(true))
+        .addStringOption(option => option.setName('objective').setDescription('What the party will be mostly doing while grouped up').setRequired(true))
         .addStringOption(option => option
             .setName('ladder')
             .setDescription('Ladder or Non-Ladder')
             .setRequired(true)
             .addChoice('Ladder', 'Ladder')
             .addChoice('Non-Ladder', 'Non-Ladder')),
+    description: `Creates a looking for group listing for forming a party with others.
+    
+**Options:**
+- **difficulty:** The difficulty you are playing in. Choices are Normal, Nightmare and Hell
+- **objective:** What the party will be mostly doing while grouped up
+- **ladder:** Is your listing for ladder or non-ladder? Choices are Ladder and Non-Ladder`,
     // .addStringOption(option => option.setName('members').setDescription('The existing members in your party').setRequired(false)),
     async execute(interaction) {
         const host = interaction.user.id;
@@ -35,6 +41,7 @@ module.exports = {
             "user_id": interaction.user.id,
             "channel_id": hcLfgChannel
         }
+
         // Find any document from the sc-lfg channel or hc-lfg channel
         const lfgDbDocument = await lfgSchema.findOne().or([querySc, queryHc]);
         const memberDocument = await memberSchema.findOne({ id: host });
@@ -77,30 +84,6 @@ module.exports = {
                 return;
             }
 
-            // // Just the host in an array
-            // const hostArray = [interaction.member.id];
-
-            // // If membersArray is some truthy value then add it to the hostArray (appends to end)
-            // // Else only the host was specified/members was not specified as an option
-            // const partyMembersArray = membersArray ? hostArray.concat(membersArray) : hostArray; // Array1
-
-            // // Get the length of partyMembersArray
-            // const partyMembersLength = partyMembersArray.length;
-
-            // const membersDbInfo = await memberSchema.find({ id: partyMembersArray }); // Array2
-
-            // for (partyMember of partyMembersArray) {
-            //     if (!membersDbInfo.some(member => member.id === partyMember)) {
-            //         const nonExistingMember = {
-            //             id: partyMember,
-            //             switch_code: null
-            //         }
-            //         membersDbInfo.push(nonExistingMember);
-            //     }
-            // }
-
-            // const membersMapArray = membersDbInfo.map(member => `<@${member.id}> - **${member?.switch_code ?? "N/A"}**`).join('\n');
-
             const row = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
@@ -111,10 +94,6 @@ module.exports = {
                         .setCustomId('leaveButton')
                         .setLabel('Leave')
                         .setStyle('SECONDARY'),
-                    new MessageButton()
-                        .setCustomId('endButton')
-                        .setLabel('End')
-                        .setStyle('PRIMARY'),
                     new MessageButton()
                         .setCustomId('deleteButton')
                         .setLabel('Delete')
@@ -150,6 +129,17 @@ module.exports = {
                         partyCount: 1
                     }
                     await new lfgSchema(storedMessage).save();
+
+                    console.log(`LFG detected from ${interaction.user.username}. Creating thread...`);
+
+                    const thread = await reply.startThread({
+                        name: `${interaction.user.username} Party`,
+                        autoArchiveDuration: 60,
+                        reason: 'Party thread',
+                    });
+
+                    await thread.members.add(host);
+
                 } catch (err) {
                     console.error(err);
                 }
